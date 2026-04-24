@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Gift For You 💖</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        
+        /* 1. พื้นหลังอนิเมชั่นสีพาสเทลขยับได้ */
+        body {
+            margin: 0; padding: 0; 
+            font-family: 'Mali', cursive;
+            background: linear-gradient(-45deg, #ffc3d1, #ffe6ea, #ffb3c6, #ffdce3);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            min-height: 100vh; 
+            display: flex;
+            justify-content: center; align-items: center; 
+            overflow-x: hidden;
+            color: #4a4a4a;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 2. สไตล์ Glassmorphism (กระจกใส) */
+        .card {
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            padding: 40px 30px;
+            border-radius: 25px; 
+            box-shadow: 0 20px 40px rgba(255, 105, 135, 0.15);
+            text-align: center; 
+            max-width: 450px; 
+            width: 90%; 
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        h1 { 
+            color: #ff477e; 
+            margin-top: 0; 
+            font-size: 26px; 
+            text-shadow: 1px 1px 2px rgba(255, 71, 126, 0.1);
+        }
+        
+        p { color: #666; font-size: 16px; line-height: 1.6; }
+
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; color: #ff2a6d; font-weight: 700; margin-bottom: 8px; font-size: 15px; }
+        
+        input[type="text"], textarea {
+            width: 100%; padding: 12px 15px; 
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ffccd5;
+            border-radius: 12px; font-family: 'Mali', cursive; 
+            font-size: 15px; outline: none;
+            transition: 0.3s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        input[type="text"]:focus, textarea:focus { 
+            border-color: #ff477e; 
+            box-shadow: 0 0 8px rgba(255, 71, 126, 0.2);
+            background: #fff;
+        }
+        
+        /* 3. ตกแต่งปุ่มอัปโหลดไฟล์ให้สวยงาม */
+        .custom-file-upload {
+            display: block; width: 100%;
+            padding: 12px; background: #fff0f3;
+            border: 2px dashed #ff8fa3; border-radius: 12px;
+            text-align: center; color: #ff477e; font-weight: 600;
+            cursor: pointer; transition: 0.3s;
+        }
+        .custom-file-upload:hover { background: #ffe6ea; border-color: #ff477e; }
+        input[type="file"] { display: none; }
+        #file-name { display: block; margin-top: 5px; font-size: 13px; color: #888; text-align: center;}
+
+        /* 4. ปุ่มกดสวยๆ */
+        button {
+            background: linear-gradient(135deg, #ff477e 0%, #ff2a6d 100%);
+            color: white; border: none; padding: 14px 20px;
+            border-radius: 30px; font-size: 16px; font-family: 'Mali', cursive;
+            cursor: pointer; font-weight: bold; width: 100%; 
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 71, 126, 0.3);
+        }
+        button:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 20px rgba(255, 71, 126, 0.4); 
+        }
+        button:disabled { 
+            background: #dcdcdc; box-shadow: none; cursor: not-allowed; transform: none; 
+        }
+
+        #share-link-container { display: none; margin-top: 25px; animation: fadeIn 0.5s; }
+        #share-link { width: 100%; padding: 12px; background: #f8f9fa; margin-bottom: 15px; text-align: center; color: #555;}
+        
+        .btn-copy { background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3); }
+        .btn-copy:hover { box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4); }
+
+        /* 5. ส่วนกล่องของขวัญตอนเปิด (มีแสงออร่า) */
+        #gift-box-container { cursor: pointer; padding: 20px 0; }
+        .gift-icon { 
+            font-size: 110px; 
+            animation: shake 2s infinite ease-in-out; 
+            display: inline-block; 
+            margin-bottom: 10px; 
+            filter: drop-shadow(0 0 20px rgba(255, 71, 126, 0.5));
+        }
+        @keyframes shake { 
+            0%, 100% { transform: rotate(0deg); } 
+            25% { transform: rotate(-12deg) scale(1.05); } 
+            50% { transform: rotate(12deg) scale(1.05); } 
+            75% { transform: rotate(-8deg) scale(1.05); } 
+        }
+
+        /* 6. แกลลอรี่รูปภาพโพลารอยด์ - อัปเดตการจัดวาง */
+        #gift-content { display: none; opacity: 0; transition: opacity 1.5s ease-in-out; }
+        
+        .gallery-container {
+            display: grid; /* เปลี่ยนจาก flex เป็น grid */
+            grid-auto-flow: column; /* จัดวางตามคอลัมน์อัตโนมัติ */
+            grid-auto-columns: max-content; /* ปรับขนาดคอลัมน์ตามเนื้อหา */
+            gap: 20px; /* ช่องว่าง */
+            padding: 20px 10px 40px 10px;
+            overflow-x: auto; /* เลื่อนด้านข้าง */
+            scroll-snap-type: x mandatory; /* เลื่อนแบบหยุดเป็นจุด */
+            perspective: 1000px; /* เพิ่มมิติ Perspective */
+            perspective-origin: center top;
+        }
+
+        .gallery-container::-webkit-scrollbar { height: 6px; }
+        .gallery-container::-webkit-scrollbar-track { background: #ffe6ea; border-radius: 10px; }
+        .gallery-container::-webkit-scrollbar-thumb { background: #ff8fa3; border-radius: 10px; }
+        
+        .polaroid {
+            background: white; 
+            padding: 12px 12px 35px 12px; /* ขอบล่างหนาเหมือนโพลารอยด์จริง */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); /* เงาที่ลึกขึ้น */
+            border-radius: 4px; flex-shrink: 0; scroll-snap-align: center;
+            transform-style: preserve-3d; /* คงมิติ 3D */
+            transition: transform 0.3s; /* transition สำหรับ Hover */
+            margin-right: 20px; /* ช่องว่างขวา */
+        }
+
+        /* ใช้ nth-child เพื่อสร้างความแตกต่างในการจัดวาง */
+        .polaroid:nth-child(1) { transform: rotate(-5deg) translateZ(-50px) translateY(10px); }
+        .polaroid:nth-child(2) { transform: rotate(3deg) translateZ(0) translateY(-5px); }
+        .polaroid:nth-child(3) { transform: rotate(-2deg) translateZ(-80px) translateY(15px); }
+        .polaroid:nth-child(4) { transform: rotate(4deg) translateZ(-30px) translateY(-10px); }
+        .polaroid:nth-child(even):not(:first-child) { transform: rotate(3deg) translateZ(0); }
+        .polaroid:nth-child(odd):not(:first-child) { transform: rotate(-3deg) translateZ(-60px); }
+
+        .polaroid:hover { transform: scale(1.05) rotate(0deg); z-index: 2;}
+        .polaroid img { width: 220px; height: 220px; object-fit: cover; border-radius: 3px; }
+        
+        .message-text { 
+            font-size: 18px; color: #444; margin: 20px 0; padding: 25px 20px; 
+            background: linear-gradient(135deg, #fff0f3 0%, #ffe6ea 100%); 
+            border-radius: 20px; white-space: pre-line; 
+            box-shadow: inset 0 2px 10px rgba(255, 71, 126, 0.05);
+            line-height: 1.8;
+            position: relative;
+        }
+        /* ใส่ลูกเล่นให้กล่องข้อความ */
+        .message-text::before {
+            content: '❝'; font-size: 40px; color: #ff8fa3; opacity: 0.3;
+            position: absolute; top: -5px; left: 15px;
+        }
+
+        #loading-text { display: none; color: #ff477e; font-weight: bold; margin-top: 15px; font-size: 14px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        /* 7. เอฟเฟกต์หัวใจลอย */
+        .heart { position: absolute; font-size: 24px; animation: floatUp 4s ease-in infinite; z-index: 1; opacity: 0; pointer-events: none;}
+        @keyframes floatUp { 
+            0% { transform: translateY(100vh) scale(0) rotate(0deg); opacity: 1; } 
+            100% { transform: translateY(-10vh) scale(1.5) rotate(360deg); opacity: 0; } 
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="creator-mode">
+        <h1>✨ สร้างของขวัญของคุณ ✨</h1>
+        <div class="form-group">
+            <label>ส่งถึงใครเอ่ย? 💌</label>
+            <input type="text" id="input-to" placeholder="เช่น ที่รัก, หมูอ้วน, เพื่อนรัก">
+        </div>
+        <div class="form-group">
+            <label>เลือกรูปภาพแห่งความทรงจำ 🖼️</label>
+            <label for="input-files" class="custom-file-upload">
+                📸 คลิกเพื่อเลือกรูปภาพ (เลือกได้หลายรูป)
+            </label>
+            <input type="file" id="input-files" multiple accept="image/*" onchange="updateFileName()">
+            <span id="file-name">ยังไม่ได้เลือกรูปภาพ</span>
+        </div>
+        <div class="form-group">
+            <label>ข้อความแทนใจ 📝</label>
+            <textarea id="input-msg" rows="4" placeholder="พิมพ์ความในใจลงไปเลย..."></textarea>
+        </div>
+        
+        <button id="btn-generate" onclick="generateGift()">🪄 สร้างลิงก์ของขวัญ</button>
+        <p id="loading-text">กำลังอัปโหลดความรัก... รอแป๊บนึงน้า ⏳</p>
+
+        <div id="share-link-container">
+            <p style="color: #ff477e; font-weight: bold; margin-bottom: 8px;">คัดลอกลิงก์นี้ส่งให้เขาได้เลย! 👇</p>
+            <input type="text" id="share-link" readonly>
+            <button class="btn-copy" onclick="copyLink()">📋 คัดลอกลิงก์</button>
+        </div>
+    </div>
+
+    <div class="card" id="receiver-mode" style="display: none;">
+        <div id="gift-box-container" onclick="openGift()">
+            <div class="gift-icon">🎁</div>
+            <h1>มีของขวัญส่งมาให้คุณ!</h1>
+            <p style="color: #ff477e; font-weight: 600;">แตะที่กล่องของขวัญเพื่อเปิดดูเลย ❤️</p>
+        </div>
+
+        <div id="gift-content">
+            <h1 id="show-to">To: ...</h1>
+            <div class="gallery-container" id="show-gallery">
+                </div>
+            <div class="message-text" id="show-msg">...</div>
+            <button onclick="window.location.href = window.location.pathname" style="margin-top: 20px; background: linear-gradient(135deg, #ff9fb5 0%, #ff7ea5 100%);">
+                ✨ สร้างของขวัญของตัวเองบ้าง
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- ⚠️ สำคัญมาก: ใส่ API Key ของ ImgBB ตรงนี้ ---
+        const IMGBB_API_KEY = "8a2548904914706926320be38d12056a"; 
+        // ---------------------------------------------
+
+        // โชว์จำนวนไฟล์ที่เลือก
+        function updateFileName() {
+            const fileInput = document.getElementById('input-files');
+            const fileNameDisplay = document.getElementById('file-name');
+            if(fileInput.files.length > 0) {
+                fileNameDisplay.innerText = `เลือกแล้ว ${fileInput.files.length} รูป ✨`;
+                fileNameDisplay.style.color = '#ff477e';
+            } else {
+                fileNameDisplay.innerText = 'ยังไม่ได้เลือกรูปภาพ';
+                fileNameDisplay.style.color = '#888';
+            }
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const to = urlParams.get('to');
+        const imgs = urlParams.get('imgs');
+        const msg = urlParams.get('msg');
+
+        if (to || msg) {
+            document.getElementById('creator-mode').style.display = 'none';
+            document.getElementById('receiver-mode').style.display = 'block';
+            
+            document.getElementById('show-to').innerText = `To: ${to || 'คนพิเศษ'}`;
+            document.getElementById('show-msg').innerText = msg || '';
+
+            const gallery = document.getElementById('show-gallery');
+            if (imgs) {
+                const imgUrls = imgs.split(',');
+                imgUrls.forEach(url => {
+                    gallery.innerHTML += `
+                        <div class="polaroid">
+                            <img src="${url}" alt="Memory">
+                        </div>
+                    `;
+                });
+            } else {
+                gallery.style.display = 'none'; 
+            }
+        }
+
+        async function generateGift() {
+            if(IMGBB_API_KEY === "ใส่_API_KEY_ของคุณที่นี่" || IMGBB_API_KEY === "") {
+                alert("อย่าลืมใส่ ImgBB API Key ในโค้ดด้วยนะครับ!");
+                return;
+            }
+
+            const inputTo = document.getElementById('input-to').value;
+            const inputMsg = document.getElementById('input-msg').value;
+            const files = document.getElementById('input-files').files;
+
+            if(!inputTo || !inputMsg) {
+                alert("กรุณาใส่ชื่อคนรับและข้อความด้วยน้า 🥺");
+                return;
+            }
+
+            const btn = document.getElementById('btn-generate');
+            const loadingText = document.getElementById('loading-text');
+            btn.disabled = true;
+            loadingText.style.display = 'block';
+
+            let uploadedUrls = [];
+
+            try {
+                for(let i = 0; i < files.length; i++) {
+                    const formData = new FormData();
+                    formData.append('image', files[i]);
+
+                    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    if(data.success) {
+                        uploadedUrls.push(data.data.url);
+                    }
+                }
+
+                const imgsParam = uploadedUrls.join(',');
+                
+                const baseUrl = window.location.origin + window.location.pathname;
+                const newUrl = `${baseUrl}?to=${encodeURIComponent(inputTo)}&imgs=${encodeURIComponent(imgsParam)}&msg=${encodeURIComponent(inputMsg)}`;
+                
+                document.getElementById('share-link-container').style.display = 'block';
+                document.getElementById('share-link').value = newUrl;
+                
+            } catch (error) {
+                alert("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ ลองใหม่อีกครั้งนะครับ 😭");
+                console.error(error);
+            } finally {
+                btn.disabled = false;
+                loadingText.style.display = 'none';
+            }
+        }
+
+        function copyLink() {
+            const linkInput = document.getElementById('share-link');
+            linkInput.select();
+            document.execCommand('copy');
+            alert("คัดลอกลิงก์เรียบร้อยแล้ว! เอาไปส่งในแชทให้คนพิเศษได้เลย 💌");
+        }
+
+        function openGift() {
+            document.getElementById('gift-box-container').style.display = 'none';
+            const content = document.getElementById('gift-content');
+            content.style.display = 'block';
+            setTimeout(() => { content.style.opacity = '1'; }, 100);
+            createHearts();
+            
+            // ให้สร้างหัวใจเรื่อยๆ ทุกๆ 2 วินาทีเพื่อความสวยงาม
+            setInterval(createHearts, 2500);
+        }
+
+        function createHearts() {
+            const emojis = ['❤️', '💖', '✨', '🌸', '🥰', '💕'];
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.animationDuration = (Math.random() * 3 + 3) + 's'; // 3-6 วินาที
+                    document.body.appendChild(heart);
+                    setTimeout(() => { heart.remove(); }, 6000);
+                }, i * 150); // ค่อยๆ ปล่อยทีละดวง
+            }
+        }
+    </script>
+</body>
+</html>

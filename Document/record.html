@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Tracking | TATONG NAKHONSAWAN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@200;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-red: #e60000;
+            --dark-red: #b30000;
+            --search-bg: #000000;
+            --input-text: #888;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding-top: 50px;
+        }
+
+        .container { width: 95%; max-width: 900px; }
+
+        /* Search Bar ดีไซน์ตามรูป */
+        .search-wrapper {
+            background-color: var(--search-bg);
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            padding: 5px 10px;
+            position: relative; /* สำคัญสำหรับจัดตำแหน่งรายการที่เด้งลงมา */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* ปุ่มลูกศรหน้าช่องค้นหา */
+        .arrow-btn {
+            background: transparent;
+            border: none;
+            color: var(--input-text);
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: color 0.3s;
+            z-index: 10;
+        }
+        .arrow-btn:hover { color: #fff; }
+
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 10px;
+            color: #fff;
+            font-size: 1.1rem;
+            outline: none;
+            font-family: 'Kanit', sans-serif;
+        }
+
+        .search-btn {
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            border-radius: 100px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        /* รายการ Dropdown ที่จะโชว์เมื่อกดลูกศร */
+        .custom-dropdown {
+            position: absolute;
+            top: 110%;
+            left: 20px;
+            width: 250px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: none; /* ซ่อนไว้ก่อน */
+            z-index: 100;
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #333;
+        }
+        .dropdown-item:hover {
+            background-color: var(--soft-gray);
+            color: var(--primary-red);
+            padding-left: 25px;
+        }
+
+        /* ตาราง */
+        .table-container { margin-top: 40px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #fcfcfc; padding: 20px; color: #888; text-align: center; border-bottom: 2px solid #f4f4f4; }
+        td { padding: 20px; text-align: center; border-bottom: 1px solid #eee; }
+        .status-ok { color: #28a745; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="search-wrapper">
+        <button class="arrow-btn" onclick="toggleDropdown(event)">▼</button>
+        
+        <input type="text" id="car-search" class="search-input" placeholder="ค้นหาหรือเลือกหมายเลขรถ..." onkeyup="filterTable()">
+        
+        <button class="search-btn" onclick="filterTable()">SEARCH</button>
+
+        <div id="myDropdown" class="custom-dropdown">
+            <div class="dropdown-item" onclick="selectCar('ตต-101')">ตต-101</div>
+            <div class="dropdown-item" onclick="selectCar('ตต-102')">ตต-102</div>
+            <div class="dropdown-item" onclick="selectCar('ตต-103')">ตต-103</div>
+            <div class="dropdown-item" onclick="selectCar('ตต-201')">ตต-201</div>
+            <div class="dropdown-item" onclick="selectCar('ตต-202')">ตต-202</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="vehicleTable">
+            <thead>
+                <tr>
+                    <th>หมายเลขรถ</th>
+                    <th>วันหมดอายุ พรบ.</th>
+                    <th>สถานะ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>ตต-101</td><td>12 พ.ค. 2569</td><td class="status-ok">● พร้อมใช้งาน</td></tr>
+                <tr><td>ตต-102</td><td>01 ม.ค. 2569</td><td class="status-ok">● พร้อมใช้งาน</td></tr>
+                <tr><td>ตต-103</td><td>20 ธ.ค. 2568</td><td class="status-ok">● พร้อมใช้งาน</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // ฟังก์ชัน เปิด-ปิด รายการเมื่อกดที่ลูกศร
+    function toggleDropdown(event) {
+        event.stopPropagation(); // กันไม่ให้ปิดทันทีที่คลิก
+        const dropdown = document.getElementById("myDropdown");
+        dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+    }
+
+    // ฟังก์ชัน เมื่อเลือกหมายเลขรถจากรายการ
+    function selectCar(value) {
+        document.getElementById("car-search").value = value;
+        document.getElementById("myDropdown").style.display = "none";
+        filterTable(); // กรองตารางทันทีที่เลือก
+    }
+
+    // ฟังก์ชัน ค้นหาในตาราง
+    function filterTable() {
+        const input = document.getElementById('car-search').value.toUpperCase();
+        const tr = document.getElementById('vehicleTable').getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            let td = tr[i].getElementsByTagName('td')[0];
+            if (td) {
+                let txtValue = td.textContent || td.innerText;
+                tr[i].style.display = (txtValue.toUpperCase().indexOf(input) > -1) ? "" : "none";
+            }
+        }
+    }
+
+    // คลิกที่อื่นในหน้าเว็บให้ปิด Dropdown
+    window.onclick = function() {
+        document.getElementById("myDropdown").style.display = "none";
+    }
+</script>
+
+</body>
+</html>

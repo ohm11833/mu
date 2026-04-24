@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Weight Compare | Gemini 3 Flash Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+      }
+    </script>
+
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background: #f8fafc; }
+        .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; }
+        .upload-area { border: 2px dashed #cbd5e1; height: 180px; transition: all 0.2s; position: relative; overflow: hidden; }
+        .upload-area:hover { border-color: #6366f1; background: #f1f5f9; }
+        .diff-positive { color: #ef4444; font-weight: bold; }
+        .diff-zero { color: #10b981; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">ระบบเปรียบเทียบข้อมูลด้วย AI</h1>
+                <p class="text-slate-500">วิเคราะห์ข้อมูลอัตโนมัติจากรูปภาพ (JPG, PNG, WEBP, HEIC)</p>
+            </div>
+            <div class="text-right">
+                <span class="text-xs font-bold py-1 px-3 bg-indigo-100 text-indigo-600 rounded-full uppercase tracking-wider">Gemini 3 Flash (Preview)</span>
+            </div>
+        </header>
+
+        <div class="grid lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-4 space-y-4">
+                <div class="glass-card p-6 shadow-sm">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-600 mb-2">รูปภาพที่ 1 (ต้นฉบับ)</label>
+                            <div class="upload-area rounded-xl flex flex-col items-center justify-center cursor-pointer">
+                                <input type="file" id="img1" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
+                                <div id="p-1" class="text-center p-2"><span class="text-slate-400">คลิกเพื่ออัปโหลด</span></div>
+                                <img id="view1" class="absolute inset-0 w-full h-full object-cover hidden">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-600 mb-2">รูปภาพที่ 2 (รับของ)</label>
+                            <div class="upload-area rounded-xl flex flex-col items-center justify-center cursor-pointer">
+                                <input type="file" id="img2" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
+                                <div id="p-2" class="text-center p-2"><span class="text-slate-400">คลิกเพื่ออัปโหลด</span></div>
+                                <img id="view2" class="absolute inset-0 w-full h-full object-cover hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <button id="run-btn" class="w-full mt-8 bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg flex items-center justify-center gap-2">
+                        วิเคราะห์เปรียบเทียบ
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8">
+                <div class="glass-card p-0 shadow-sm overflow-hidden min-h-[550px] flex flex-col">
+                    <div id="loader" class="hidden flex-grow flex flex-col items-center justify-center p-20 text-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-indigo-600 mb-4"></div>
+                        <p class="text-slate-500">AI กำลังอ่านและวิเคราะห์รูปภาพ...</p>
+                    </div>
+
+                    <div id="empty-view" class="flex-grow flex flex-col items-center justify-center p-20 text-center text-slate-400">
+                        <p>อัปโหลดภาพ 2 ใบ และกดวิเคราะห์</p>
+                    </div>
+
+                    <div id="result-view" class="hidden flex-grow p-4">
+                        <div id="date-check-alert" class="mb-4"></div>
+                        <div class="overflow-x-auto rounded-lg border border-slate-200 mb-4">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+                                    <tr>
+                                        <th class="p-4 border-b">รายการสินค้า</th>
+                                        <th class="p-4 border-b">น้ำหนัก รูป 1</th>
+                                        <th class="p-4 border-b">น้ำหนัก รูป 2</th>
+                                        <th class="p-4 border-b text-center">ส่วนต่าง</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-body" class="text-sm divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                        <div class="p-6 bg-indigo-50/50 border border-indigo-100 rounded-lg">
+                            <p id="ai-summary" class="text-indigo-900 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { GoogleGenerativeAI } from "@google/generative-ai";
+
+        const API_KEY = "AIzaSyCmpR7BDSdB1LOJqNUPKdI1AovGzEaYIVM"; 
+        
+        const genAI = new GoogleGenerativeAI(API_KEY);
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-3-flash-preview", 
+            generationConfig: { responseMimeType: "application/json" }
+        });
+
+        const setupPreview = (inId, vId, pId) => {
+            document.getElementById(inId).addEventListener('change', e => {
+                const f = e.target.files[0];
+                if (f) {
+                    // ตรวจสอบเบื้องต้นว่าเป็นไฟล์รูปภาพหรือไม่
+                    if (!f.type.startsWith('image/')) {
+                        alert("กรุณาเลือกไฟล์ที่เป็นรูปภาพเท่านั้นครับ");
+                        e.target.value = "";
+                        return;
+                    }
+
+                    const r = new FileReader();
+                    r.onload = ev => {
+                        const img = document.getElementById(vId);
+                        img.src = ev.target.result;
+                        img.classList.remove('hidden');
+                        document.getElementById(pId).classList.add('hidden');
+                    };
+                    r.readAsDataURL(f);
+                }
+            });
+        };
+        setupPreview('img1', 'view1', 'p-1');
+        setupPreview('img2', 'view2', 'p-2');
+
+        document.getElementById('run-btn').addEventListener('click', async () => {
+            const f1 = document.getElementById('img1').files[0];
+            const f2 = document.getElementById('img2').files[0];
+            if (!f1 || !f2) return alert("กรุณาอัปโหลดรูปภาพให้ครบ 2 ใบครับ");
+
+            document.getElementById('empty-view').classList.add('hidden');
+            document.getElementById('result-view').classList.add('hidden');
+            document.getElementById('loader').classList.remove('hidden');
+
+            const toB64 = file => new Promise(res => {
+                const r = new FileReader();
+                r.onload = () => res(r.result.split(',')[1]);
+                r.readAsDataURL(file);
+            });
+
+            try {
+                const b1 = await toB64(f1);
+                const b2 = await toB64(f2);
+
+                const prompt = `วิเคราะห์และเปรียบเทียบน้ำหนักสินค้าจากรูปภาพ 2 ใบนี้:
+                1. ดึงวันที่จากทั้งสองรูป (แปลงเป็นรูปแบบ YYYY-MM-DD)
+                2. ดึงรายการสินค้าและน้ำหนัก (w1 คือรูปแรก, w2 คือรูปสอง)
+                3. คำนวณส่วนต่าง (diff = w2 - w1)
+                4. สรุปภาพรวมเป็นภาษาไทย
+                ตอบกลับเป็น JSON เท่านั้น: { "date1": "string", "date2": "string", "dateMatch": boolean, "data": [{ "item": "string", "w1": number, "w2": number, "diff": number }], "summary": "string" }`;
+
+                const result = await model.generateContent([
+                    prompt,
+                    { inlineData: { data: b1, mimeType: f1.type || "image/jpeg" } },
+                    { inlineData: { data: b2, mimeType: f2.type || "image/jpeg" } }
+                ]);
+
+                const response = await result.response;
+                const data = JSON.parse(response.text());
+
+                renderResult(data);
+
+            } catch (err) {
+                console.error(err);
+                alert("เกิดข้อผิดพลาดในการวิเคราะห์: " + err.message);
+                document.getElementById('empty-view').classList.remove('hidden');
+            } finally {
+                document.getElementById('loader').classList.add('hidden');
+            }
+        });
+
+        function renderResult(result) {
+            const dateAlert = document.getElementById('date-check-alert');
+            dateAlert.className = `p-4 rounded-lg border ${result.dateMatch ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`;
+            dateAlert.innerHTML = result.dateMatch ? `<b>✅ วันที่ตรงกัน:</b> ${result.date1}` : `<b>⚠️ วันที่ไม่ตรงกัน:</b> ${result.date1} vs ${result.date2}`;
+
+            document.getElementById('table-body').innerHTML = (result.data || []).map(row => `
+                <tr class="hover:bg-slate-50/50 transition">
+                    <td class="p-4 font-medium">${row.item}</td>
+                    <td class="p-4">${(row.w1 || 0).toFixed(2)} กก.</td>
+                    <td class="p-4">${(row.w2 || 0).toFixed(2)} กก.</td>
+                    <td class="p-4 text-center ${(row.diff || 0) !== 0 ? 'diff-positive' : 'diff-zero'}">${(row.diff || 0) > 0 ? '+' : ''}${(row.diff || 0).toFixed(2)} กก.</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('ai-summary').innerText = result.summary || "ไม่สามารถสรุปข้อมูลได้";
+            document.getElementById('result-view').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
